@@ -12,9 +12,38 @@ pub mod laps {
     #[error_code]
     pub enum LapsErrors {
         #[msg("Some funds are already locked")]
-        AlreadyLocked
+        AlreadyLocked,
+        #[msg("Cannot withdraw before unlock time")]
+        EarlyUnlock
     }
     
+    pub fn unlock(ctx: Context<Unlock>) -> Result<()> {
+        let state_account = &mut ctx.accounts.state_account;
+        let signer = &ctx.accounts.signer;
+
+
+        let now = Clock::get()?;
+        if state_account.unlock_timestamp < now.unix_timestamp as u64 {
+            return err!(LapsErrors::EarlyUnlock);
+        }
+
+        state_account.amount = 0;
+        state_account.unlock_timestamp = 0;
+
+        let transfer_ix = system_instruction::transfer(
+            &state_account.key().clone(),
+            &signer.key.clone(),
+            state_account.amount
+        );
+
+        let result = invoke_signed(&transfer_ix, &[
+            state_account.to_account_info(),
+            signer.to_account_info(),
+            ctx.accounts.system_program.to_account_info()
+        ], &[])?;
+
+        Ok(result)
+    }
 
     pub fn lock(ctx: Context<Lock>, delay: u64, amount: u64) -> Result<()> {
         let locker = &ctx.accounts.signer;
@@ -52,6 +81,15 @@ struct LockingData {
 
 #[derive(Accounts)]
 pub struct Lock<'info> {
+    #[account(mut)]
+    pub signer: Signer<'info>,
+    #[account(init, payer = signer, space = 8 + 64 + 8)]
+    pub state_account: Account<'info, LockingData>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct Unlock<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
     #[account(init, payer = signer, space = 8 + 64 + 8)]
