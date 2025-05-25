@@ -1,1 +1,1 @@
-{"root":["./app/lock.ts","./app/idl/laps.ts"],"version":"5.8.3"}
+{"root":["./app/lock.ts","./app/state.ts","./app/types/laps.ts"],"version":"5.8.3"}

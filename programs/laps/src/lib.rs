@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("ZoYEfG3ByifXtgXKjg3JERvJGJzDzJbx5G3f1QkYp7j");
+declare_id!("BDThdpgR8TRV1iUBBVUu7qHCmsgHvqydxqUN6BXQhghx");
 
 
 #[program]
@@ -55,7 +55,6 @@ pub mod laps {
         }
 
         state.amount = amount;
-        state.owner = locker.key.clone();
         state.unlock_timestamp = (clock.unix_timestamp as u64) + delay;
 
         let transfer_ix = system_instruction::transfer(&locker.key(), &state.key(), amount);
@@ -73,7 +72,6 @@ pub mod laps {
 
 #[account]
 struct LockingData {
-    pub owner: Pubkey,
     pub unlock_timestamp: u64,
     pub amount: u64
 }
@@ -83,7 +81,7 @@ struct LockingData {
 pub struct Lock<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
-    #[account(init, payer = signer, space = 8 + 64 + 8)]
+    #[account(init, payer = signer, space = 8 + 8 + 8, seeds = [b"laps", signer.key.as_ref()], bump)]
     pub state_account: Account<'info, LockingData>,
     pub system_program: Program<'info, System>,
 }
@@ -92,7 +90,7 @@ pub struct Lock<'info> {
 pub struct Unlock<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
-    #[account(init, payer = signer, space = 8 + 64 + 8)]
+    #[account(init, payer = signer, space = 8 + 8 + 8, seeds = [b"laps", signer.key.as_ref()], bump)]
     pub state_account: Account<'info, LockingData>,
     pub system_program: Program<'info, System>,
 }

@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/laps.json`.
  */
 export type Laps = {
-  "address": "ZoYEfG3ByifXtgXKjg3JERvJGJzDzJbx5G3f1QkYp7j",
+  "address": "BDThdpgR8TRV1iUBBVUu7qHCmsgHvqydxqUN6BXQhghx",
   "metadata": {
     "name": "laps",
     "version": "0.1.0",
@@ -34,7 +34,23 @@ export type Laps = {
         {
           "name": "stateAccount",
           "writable": true,
-          "signer": true
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  97,
+                  112,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "signer"
+              }
+            ]
+          }
         },
         {
           "name": "systemProgram",
@@ -73,7 +89,23 @@ export type Laps = {
         {
           "name": "stateAccount",
           "writable": true,
-          "signer": true
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  97,
+                  112,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "signer"
+              }
+            ]
+          }
         },
         {
           "name": "systemProgram",
@@ -116,10 +148,6 @@ export type Laps = {
       "type": {
         "kind": "struct",
         "fields": [
-          {
-            "name": "owner",
-            "type": "pubkey"
-          },
           {
             "name": "unlockTimestamp",
             "type": "u64"
